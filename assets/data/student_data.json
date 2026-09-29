@@ -1,0 +1,41 @@
+{
+  "studentId": "2415051038",
+  "studentName": "Gena Anggarani",
+  "courses": [
+    {
+      "title": "Pemrograman Mobile",
+      "code": "PMO",
+      "credits": 3,
+      "status": "Selesai",
+      "category": "Pemrograman"
+    },
+    {
+      "title": "Metopen",
+      "code": "MTP",
+      "credits": 3,
+      "status": "Selesai",
+      "category": "Penelitian"
+    },
+    {
+      "title": "Mikro Teaching",
+      "code": "MKT",
+      "credits": 2,
+      "status": "Belum",
+      "category": "Pendidikan"
+    },
+    {
+      "title": "Linpro Literasi Humanistik",
+      "code": "LLH",
+      "credits": 2,
+      "status": "Selesai",
+      "category": "Literasi"
+    },
+    {
+      "title": "Linpro Literasi Keuangan",
+      "code": "LLK",
+      "credits": 2,
+      "status": "Belum",
+      "category": "Literasi"
+    }
+  ]
+}
