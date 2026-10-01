@@ -17,120 +17,129 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: CourseInteractionPage(),
+      home: FeedbackPage(),
     );
   }
 }
 
-class CourseInteractionPage extends StatefulWidget {
-  const CourseInteractionPage({super.key});
+class FeedbackPage extends StatefulWidget {
+  const FeedbackPage({super.key});
 
   @override
-  State<CourseInteractionPage> createState() =>
-      _CourseInteractionPageState();
+  State<FeedbackPage> createState() => _FeedbackPageState();
 }
 
-class _CourseInteractionPageState extends State<CourseInteractionPage> {
-  bool isFavorite = false;
+class _FeedbackPageState extends State<FeedbackPage> {
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController nameController =
+      TextEditingController();
+
+  final TextEditingController nimController =
+      TextEditingController();
+
+  final TextEditingController commentController =
+      TextEditingController();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    nimController.dispose();
+    commentController.dispose();
+    super.dispose();
+  }
+
+  void submitForm() {
+    if (_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Form berhasil divalidasi'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Course Explorer'),
+        title: const Text('Feedback Course'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Text(
-              '$studentId - $studentName',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 24),
-            CourseCard(
-              title: 'Pemrograman Mobile',
-              code: 'PM001',
-              isFavorite: isFavorite,
-              onFavoritePressed: () {
-                setState(() {
-                  isFavorite = !isFavorite;
-                });
-              },
-              onLongPress: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Course Pemrograman Mobile dipilih'),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class CourseCard extends StatelessWidget {
-  final String title;
-  final String code;
-  final bool isFavorite;
-  final VoidCallback onFavoritePressed;
-  final VoidCallback onLongPress;
-
-  const CourseCard({
-    super.key,
-    required this.title,
-    required this.code,
-    required this.isFavorite,
-    required this.onFavoritePressed,
-    required this.onLongPress,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onLongPress: onLongPress,
-      borderRadius: BorderRadius.circular(16),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
-                Icons.menu_book,
-                size: 50,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text('Kode: $code'),
-                  ],
+              const Center(
+                child: Text(
+                  '$studentId - $studentName',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              IconButton(
-                onPressed: onFavoritePressed,
-                icon: Icon(
-                  isFavorite
-                      ? Icons.favorite
-                      : Icons.favorite_border,
+              const SizedBox(height: 24),
+
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nama',
+                  border: OutlineInputBorder(),
                 ),
-                tooltip: 'Favorite',
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Nama wajib diisi';
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 16),
+
+              TextFormField(
+                controller: nimController,
+                decoration: const InputDecoration(
+                  labelText: 'NIM',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'NIM wajib diisi';
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 16),
+
+              TextFormField(
+                controller: commentController,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Komentar',
+                  hintText: 'Masukkan komentar minimal 5 karakter',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().length < 5) {
+                    return 'Komentar minimal 5 karakter';
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: submitForm,
+                  child: const Text('Kirim'),
+                ),
               ),
             ],
           ),
