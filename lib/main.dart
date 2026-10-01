@@ -32,11 +32,28 @@ class HomePage extends StatelessWidget {
     'status': 'Aktif',
   };
 
+  Future<void> openDetail(BuildContext context) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetailPage(course: course),
+      ),
+    );
+
+    if (result == true && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Course berhasil dipilih!'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 8 - Passing Data'),
+        title: const Text('Tahap 9 - Return Data'),
       ),
       body: Center(
         child: Column(
@@ -62,14 +79,7 @@ class HomePage extends StatelessWidget {
             Text('Course: ${course['title']}'),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetailPage(course: course),
-                  ),
-                );
-              },
+              onPressed: () => openDetail(context),
               child: const Text('Lihat Detail Course'),
             ),
           ],
@@ -123,9 +133,9 @@ class DetailPage extends StatelessWidget {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context, true);
                 },
-                child: const Text('Kembali'),
+                child: const Text('Pilih Course'),
               ),
             ],
           ),
