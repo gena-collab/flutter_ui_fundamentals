@@ -41,6 +41,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
   final TextEditingController commentController =
       TextEditingController();
 
+  bool isLoading = false;
+
   @override
   void dispose() {
     nameController.dispose();
@@ -49,14 +51,58 @@ class _FeedbackPageState extends State<FeedbackPage> {
     super.dispose();
   }
 
-  void submitForm() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Form berhasil divalidasi'),
-        ),
-      );
+  Future<void> submitForm() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
     }
+
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi'),
+          content: const Text(
+            'Apakah data sudah benar dan ingin dikirim?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Kirim'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    setState(() {
+      isLoading = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Feedback berhasil dikirim'),
+      ),
+    );
   }
 
   @override
@@ -137,8 +183,16 @@ class _FeedbackPageState extends State<FeedbackPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: submitForm,
-                  child: const Text('Kirim'),
+                  onPressed: isLoading ? null : submitForm,
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text('Kirim'),
                 ),
               ),
             ],
