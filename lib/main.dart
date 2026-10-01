@@ -17,45 +17,51 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ResponsiveTestPage(),
+      home: MediaQueryPage(),
     );
   }
 }
 
-class ResponsiveTestPage extends StatelessWidget {
-  const ResponsiveTestPage({super.key});
+class MediaQueryPage extends StatelessWidget {
+  const MediaQueryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final orientation = MediaQuery.of(context).orientation;
+
+    final String screenType =
+        size.width < 600 ? 'Compact' : 'Wide';
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 1 - Responsive Layout'),
+        title: const Text('Tahap 2 - MediaQuery'),
       ),
       body: Center(
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            border: Border.all(),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '$studentId - $studentName',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    '$studentId - $studentName',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text('Width: ${size.width.toStringAsFixed(0)}'),
+                  Text('Height: ${size.height.toStringAsFixed(0)}'),
+                  Text('Orientation: $orientation'),
+                  Text('Tipe Layar: $screenType'),
+                ],
               ),
-              SizedBox(height: 12),
-              Text(
-                'Container dengan width fleksibel',
-                textAlign: TextAlign.center,
-              ),
-            ],
+            ),
           ),
         ),
       ),
