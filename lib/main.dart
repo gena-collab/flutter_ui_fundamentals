@@ -17,115 +17,108 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LayoutBuilderPage(),
+      home: ResponsiveRowPage(),
     );
   }
 }
 
-class LayoutBuilderPage extends StatelessWidget {
-  const LayoutBuilderPage({super.key});
+class ResponsiveRowPage extends StatelessWidget {
+  const ResponsiveRowPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 3 - LayoutBuilder'),
+        title: const Text('Tahap 4 - Row & Wrap'),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth < 600) {
-            return const CompactLayout();
-          } else if (constraints.maxWidth < 840) {
-            return const MediumLayout();
-          } else {
-            return const ExpandedLayout();
-          }
-        },
-      ),
-    );
-  }
-}
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '$studentId - $studentName',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 24),
 
-class CompactLayout extends StatelessWidget {
-  const CompactLayout({super.key});
+            const Text(
+              'Pembagian Ruang dengan Expanded',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
 
-  @override
-  Widget build(BuildContext context) {
-    return _buildLayout(
-      'Compact Layout',
-      'Lebar layar kurang dari 600',
-      Icons.phone_android,
-    );
-  }
-}
-
-class MediumLayout extends StatelessWidget {
-  const MediumLayout({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return _buildLayout(
-      'Medium Layout',
-      'Lebar layar 600 sampai 839',
-      Icons.tablet,
-    );
-  }
-}
-
-class ExpandedLayout extends StatelessWidget {
-  const ExpandedLayout({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return _buildLayout(
-      'Expanded Layout',
-      'Lebar layar 840 atau lebih',
-      Icons.desktop_windows,
-    );
-  }
-}
-
-Widget _buildLayout(
-  String title,
-  String description,
-  IconData icon,
-) {
-  return Center(
-    child: Padding(
-      padding: const EdgeInsets.all(24),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                '$studentId - $studentName',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    height: 80,
+                    alignment: Alignment.center,
+                    color: Colors.blue,
+                    child: const Text(
+                      'Skill Utama',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              Icon(icon, size: 70),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    height: 80,
+                    alignment: Alignment.center,
+                    color: Colors.green,
+                    child: const Text(
+                      'Skill Lain',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ),
+              ],
+            ),
+
+            const SizedBox(height: 30),
+
+            const Text(
+              'Skills',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 8),
-              Text(
-                description,
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 12),
+
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: const [
+                Chip(label: Text('Flutter')),
+                Chip(label: Text('Dart')),
+                Chip(label: Text('UI/UX')),
+                Chip(label: Text('Firebase')),
+                Chip(label: Text('Git')),
+                Chip(label: Text('Figma')),
+                Chip(label: Text('Android')),
+              ],
+            ),
+
+            const SizedBox(height: 30),
+
+            const Text(
+              'Wrap digunakan agar Chip dapat berpindah ke baris berikutnya '
+              'ketika ruang layar tidak mencukupi.',
+              style: TextStyle(fontSize: 15),
+            ),
+          ],
         ),
       ),
-    ),
-  );
+    );
+  }
 }
