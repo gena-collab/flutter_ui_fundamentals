@@ -17,127 +17,104 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: CourseGridPage(),
+      home: ProfileFormPage(),
     );
   }
 }
 
-class CourseGridPage extends StatelessWidget {
-  const CourseGridPage({super.key});
-
-  final List<Map<String, String>> courses = const [
-    {
-      'title': 'Pemrograman Mobile',
-      'code': 'PM001',
-      'credits': '3 SKS',
-    },
-    {
-      'title': 'Pemrograman Web',
-      'code': 'PW002',
-      'credits': '3 SKS',
-    },
-    {
-      'title': 'Basis Data',
-      'code': 'BD003',
-      'credits': '3 SKS',
-    },
-    {
-      'title': 'Rekayasa Perangkat Lunak',
-      'code': 'RPL004',
-      'credits': '3 SKS',
-    },
-    {
-      'title': 'Kecerdasan Buatan',
-      'code': 'AI005',
-      'credits': '3 SKS',
-    },
-    {
-      'title': 'Interaksi Manusia dan Komputer',
-      'code': 'IMK006',
-      'credits': '2 SKS',
-    },
-  ];
-
-  int getCrossAxisCount(double width) {
-    if (width < 600) {
-      return 1;
-    } else if (width < 840) {
-      return 2;
-    } else {
-      return 3;
-    }
-  }
+class ProfileFormPage extends StatelessWidget {
+  const ProfileFormPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 5 - GridView'),
+        title: const Text('Tahap 6 - ScrollView'),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final columns = getCrossAxisCount(constraints.maxWidth);
-
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                const Text(
-                  '$studentId - $studentName',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate:
-                        SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: columns,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.4,
-                    ),
-                    itemCount: courses.length,
-                    itemBuilder: (context, index) {
-                      final course = courses[index];
-
-                      return Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.school,
-                                size: 40,
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                course['title']!,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(course['code']!),
-                              Text(course['credits']!),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '$studentId - $studentName',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          );
-        },
+            const SizedBox(height: 24),
+
+            const Text(
+              'Profil Mahasiswa',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Nama Lengkap',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'NIM',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Program Studi',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            TextFormField(
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Alamat',
+                border: OutlineInputBorder(),
+                alignLabelWithHint: true,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            TextFormField(
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Deskripsi Diri',
+                border: OutlineInputBorder(),
+                alignLabelWithHint: true,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {},
+                child: const Text('Simpan Profil'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
