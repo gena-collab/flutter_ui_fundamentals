@@ -17,101 +17,94 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ProfileFormPage(),
+      home: HomePage(),
     );
   }
 }
 
-class ProfileFormPage extends StatelessWidget {
-  const ProfileFormPage({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 6 - ScrollView'),
+        title: const Text('Tahap 7 - Navigation'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+      body: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
               '$studentId - $studentName',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 24),
-
             const Text(
-              'Profil Mahasiswa',
+              'Home Page',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 20),
-
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Nama Lengkap',
-                border: OutlineInputBorder(),
-              ),
-            ),
             const SizedBox(height: 16),
-
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'NIM',
-                border: OutlineInputBorder(),
-              ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DetailPage(),
+                  ),
+                );
+              },
+              child: const Text('Buka Detail'),
             ),
-            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Program Studi',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
+class DetailPage extends StatelessWidget {
+  const DetailPage({super.key});
 
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            TextFormField(
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Alamat',
-                border: OutlineInputBorder(),
-                alignLabelWithHint: true,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            TextFormField(
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Deskripsi Diri',
-                border: OutlineInputBorder(),
-                alignLabelWithHint: true,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Detail Page'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              '$studentId - $studentName',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 24),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {},
-                child: const Text('Simpan Profil'),
+            const Text(
+              'Detail Page',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Kembali'),
             ),
           ],
         ),
