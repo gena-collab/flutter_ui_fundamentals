@@ -5,13 +5,74 @@ import 'package:flutter/material.dart';
 
 const String studentName = 'Gena Anggarani';
 const String studentId = '2415051038';
+const String profileImage = 'assets/images/profile.jpeg';
+
 
 void main() {
-  runApp(const MyApp());
+  runApp(const CourseExplorerApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class Course {
+  final String code;
+  final String name;
+  final String description;
+  final IconData icon;
+  final Color color;
+
+  const Course({
+    required this.code,
+    required this.name,
+    required this.description,
+    required this.icon,
+    required this.color,
+  });
+}
+
+const List<Course> courses = [
+  Course(
+    code: 'PM001',
+    name: 'Pemrograman Mobile',
+    description:
+        'Mempelajari pengembangan aplikasi mobile, Flutter, Dart, dan desain antarmuka.',
+    icon: Icons.phone_android_rounded,
+    color: Color(0xFF1976D2),
+  ),
+  Course(
+    code: 'PW002',
+    name: 'Pemrograman Web',
+    description:
+        'Mempelajari dasar pengembangan website dan teknologi web modern.',
+    icon: Icons.language_rounded,
+    color: Color(0xFF0097A7),
+  ),
+  Course(
+    code: 'BD003',
+    name: 'Basis Data',
+    description:
+        'Mempelajari pengelolaan data, perancangan database, dan SQL.',
+    icon: Icons.storage_rounded,
+    color: Color(0xFF7C4DFF),
+  ),
+  Course(
+    code: 'AI004',
+    name: 'Kecerdasan Buatan',
+    description:
+        'Mengenal kecerdasan buatan, machine learning, dan penerapannya.',
+    icon: Icons.psychology_rounded,
+    color: Color(0xFFEF6C00),
+  ),
+  Course(
+    code: 'RPL005',
+    name: 'Rekayasa Perangkat Lunak',
+    description:
+        'Mempelajari analisis kebutuhan, desain, dan pengembangan perangkat lunak.',
+    icon: Icons.code_rounded,
+    color: Color(0xFF00897B),
+  ),
+];
+
+class CourseExplorerApp extends StatelessWidget {
+  const CourseExplorerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +80,23 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Course Explorer',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF1976D2),
+          brightness: Brightness.light,
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF3F7FC),
+        appBarTheme: const AppBarTheme(
+          foregroundColor: Colors.white,
+          backgroundColor: Color(0xFF1976D2),
+        ),
+        cardTheme: CardThemeData(
+          color: Colors.white,
+          elevation: 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
       ),
       home: const CourseExplorerPage(),
     );
@@ -31,127 +107,136 @@ class CourseExplorerPage extends StatefulWidget {
   const CourseExplorerPage({super.key});
 
   @override
-  State<CourseExplorerPage> createState() =>
-      _CourseExplorerPageState();
+  State<CourseExplorerPage> createState() => _CourseExplorerPageState();
 }
 
 class _CourseExplorerPageState extends State<CourseExplorerPage> {
   int selectedIndex = 0;
 
-  final List<Map<String, dynamic>> courses = [
-    {
-      'title': 'Pemrograman Mobile',
-      'code': 'PM001',
-      'credits': 3,
-      'description': 'Mempelajari pengembangan aplikasi mobile.',
-    },
-    {
-      'title': 'Pemrograman Web',
-      'code': 'PW002',
-      'credits': 3,
-      'description': 'Mempelajari konsep dan pengembangan aplikasi web.',
-    },
-    {
-      'title': 'Basis Data',
-      'code': 'BD003',
-      'credits': 3,
-      'description': 'Mempelajari pengelolaan dan perancangan database.',
-    },
-    {
-      'title': 'Kecerdasan Buatan',
-      'code': 'AI004',
-      'credits': 3,
-      'description': 'Mempelajari konsep dasar kecerdasan buatan.',
-    },
-    {
-      'title': 'Rekayasa Perangkat Lunak',
-      'code': 'RPL005',
-      'credits': 3,
-      'description': 'Mempelajari proses pengembangan perangkat lunak.',
-    },
+  final List<Widget> pages = const [
+    HomePage(),
+    CoursesPage(),
+    ProfilePage(),
+  ];
+
+  final List<String> titles = [
+    'Course Explorer',
+    'Daftar Mata Kuliah',
+    'Profil Mahasiswa',
   ];
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final bool isExpanded = constraints.maxWidth >= 840;
+    final bool isWide = MediaQuery.sizeOf(context).width >= 840;
 
-        return Scaffold(
-          body: Row(
-            children: [
-              if (isExpanded)
-                NavigationRail(
-                  selectedIndex: selectedIndex,
-                  onDestinationSelected: (index) {
-                    setState(() {
-                      selectedIndex = index;
-                    });
-                  },
-                  destinations: const [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.home_outlined),
-                      selectedIcon: Icon(Icons.home),
-                      label: Text('Home'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.menu_book_outlined),
-                      selectedIcon: Icon(Icons.menu_book),
-                      label: Text('Courses'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.person_outline),
-                      selectedIcon: Icon(Icons.person),
-                      label: Text('Profile'),
-                    ),
-                  ],
-                ),
-              Expanded(
-                child: _buildPage(),
-              ),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        title: Text(
+          titles[selectedIndex],
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.2,
           ),
-          bottomNavigationBar: isExpanded
-              ? null
-              : NavigationBar(
-                  selectedIndex: selectedIndex,
-                  onDestinationSelected: (index) {
-                    setState(() {
-                      selectedIndex = index;
-                    });
+        ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: CircleAvatar(
+              radius: 18,
+              backgroundColor: Colors.white,
+              child: ClipOval(
+                child: Image.asset(
+                  profileImage,
+                  width: 36,
+                  height: 36,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(
+                      Icons.person,
+                      color: Color(0xFF1976D2),
+                    );
                   },
-                  destinations: const [
-                    NavigationDestination(
-                      icon: Icon(Icons.home_outlined),
-                      selectedIcon: Icon(Icons.home),
-                      label: 'Home',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.menu_book_outlined),
-                      selectedIcon: Icon(Icons.menu_book),
-                      label: 'Courses',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.person_outline),
-                      selectedIcon: Icon(Icons.person),
-                      label: 'Profile',
-                    ),
-                  ],
                 ),
-        );
-      },
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: Row(
+        children: [
+          if (isWide)
+            NavigationRail(
+              selectedIndex: selectedIndex,
+              onDestinationSelected: (index) {
+                setState(() => selectedIndex = index);
+              },
+              labelType: NavigationRailLabelType.all,
+              backgroundColor: Colors.white,
+              destinations: const [
+                NavigationRailDestination(
+                  icon: Icon(Icons.home_outlined),
+                  selectedIcon: Icon(Icons.home_rounded),
+                  label: Text('Home'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.menu_book_outlined),
+                  selectedIcon: Icon(Icons.menu_book_rounded),
+                  label: Text('Courses'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.person_outline_rounded),
+                  selectedIcon: Icon(Icons.person_rounded),
+                  label: Text('Profile'),
+                ),
+              ],
+            ),
+          if (isWide) const VerticalDivider(width: 1),
+          Expanded(
+            child: IndexedStack(
+              index: selectedIndex,
+              children: pages,
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: isWide
+          ? null
+          : NavigationBar(
+              selectedIndex: selectedIndex,
+              onDestinationSelected: (index) {
+                setState(() => selectedIndex = index);
+              },
+              backgroundColor: Colors.white,
+              indicatorColor: const Color(0xFFD9EAFE),
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.home_outlined),
+                  selectedIcon: Icon(Icons.home_rounded),
+                  label: 'Home',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.menu_book_outlined),
+                  selectedIcon: Icon(Icons.menu_book_rounded),
+                  label: 'Courses',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.person_outline_rounded),
+                  selectedIcon: Icon(Icons.person_rounded),
+                  label: 'Profile',
+                ),
+              ],
+            ),
     );
-  }
-
-  Widget _buildPage() {
-    switch (selectedIndex) {
-      case 1:
-        return CoursesPage(courses: courses);
-      case 2:
-        return const ProfilePage();
-      default:
-        return const HomePage();
-    }
   }
 }
 
@@ -160,41 +245,181 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1976D2).withOpacity(0.20),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.waving_hand_rounded,
+                  color: Colors.white,
+                  size: 34,
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  'Halo, $studentName!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Yuk, jelajahi mata kuliah dan terus kembangkan kemampuanmu.',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 9,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: const Text(
+                    'NIM: $studentId',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 26),
+          const Text(
+            'Ringkasan Belajar',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF17365D),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
             children: [
-              const Text(
-                '$studentId - $studentName',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: _SummaryCard(
+                  icon: Icons.menu_book_rounded,
+                  title: 'Mata Kuliah',
+                  value: '${courses.length}',
+                  color: const Color(0xFF1976D2),
                 ),
               ),
-              const SizedBox(height: 24),
-              const Icon(
-                Icons.school,
-                size: 80,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Course Explorer',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+              const SizedBox(width: 12),
+              const Expanded(
+                child: _SummaryCard(
+                  icon: Icons.school_rounded,
+                  title: 'Status',
+                  value: 'Aktif',
+                  color: Color(0xFF00897B),
                 ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Jelajahi berbagai course yang tersedia.',
-                textAlign: TextAlign.center,
               ),
             ],
           ),
+          const SizedBox(height: 28),
+          const Text(
+            'Mata Kuliah',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF17365D),
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Pilih mata kuliah untuk melihat detailnya.',
+            style: TextStyle(color: Colors.blueGrey),
+          ),
+          const SizedBox(height: 14),
+          ...courses.map(
+            (course) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: CourseCard(course: course),
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Center(
+            child: Text(
+              'Course Explorer • Belajar, berkembang, dan berkarya',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.blueGrey, fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String value;
+  final Color color;
+
+  const _SummaryCard({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              backgroundColor: color.withOpacity(0.12),
+              child: Icon(icon, color: color),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 23,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF17365D),
+              ),
+            ),
+            Text(
+              title,
+              style: const TextStyle(color: Colors.blueGrey),
+            ),
+          ],
         ),
       ),
     );
@@ -202,153 +427,149 @@ class HomePage extends StatelessWidget {
 }
 
 class CoursesPage extends StatelessWidget {
-  final List<Map<String, dynamic>> courses;
-
-  const CoursesPage({
-    super.key,
-    required this.courses,
-  });
+  const CoursesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          int crossAxisCount;
+    final width = MediaQuery.sizeOf(context).width;
+    final columns = width >= 1100 ? 3 : (width >= 600 ? 2 : 1);
 
-          if (constraints.maxWidth < 600) {
-            crossAxisCount = 1;
-          } else if (constraints.maxWidth < 840) {
-            crossAxisCount = 2;
-          } else {
-            crossAxisCount = 3;
-          }
-
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                const Text(
-                  '$studentId - $studentName',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Daftar Course',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: GridView.builder(
-                    itemCount: courses.length,
-                    gridDelegate:
-                        SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.4,
-                    ),
-                    itemBuilder: (context, index) {
-                      return CourseCard(
-                        course: courses[index],
-                      );
-                    },
-                  ),
-                ),
-              ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Semua Mata Kuliah',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF17365D),
             ),
-          );
-        },
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Terdapat ${courses.length} mata kuliah yang bisa kamu jelajahi.',
+            style: const TextStyle(color: Colors.blueGrey),
+          ),
+          const SizedBox(height: 20),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: courses.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: columns,
+              crossAxisSpacing: 14,
+              mainAxisSpacing: 14,
+              mainAxisExtent: 170,
+            ),
+            itemBuilder: (context, index) {
+              return CourseCard(course: courses[index]);
+            },
+          ),
+        ],
       ),
     );
   }
 }
 
 class CourseCard extends StatefulWidget {
-  final Map<String, dynamic> course;
+  final Course course;
 
-  const CourseCard({
-    super.key,
-    required this.course,
-  });
+  const CourseCard({super.key, required this.course});
 
   @override
   State<CourseCard> createState() => _CourseCardState();
 }
 
 class _CourseCardState extends State<CourseCard> {
+  // Local state: status favorit hanya dikelola oleh kartu ini.
   bool isFavorite = false;
-
-  void openDetail() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CourseDetailPage(
-          course: widget.course,
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: openDetail,
-      borderRadius: BorderRadius.circular(16),
-      onLongPress: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${widget.course['title']} dipilih',
+    final course = widget.course;
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CourseDetailPage(course: course),
             ),
-          ),
-        );
-      },
-      child: Card(
+          );
+        },
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.all(15),
+          child: Row(
             children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.menu_book,
-                    size: 40,
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        isFavorite = !isFavorite;
-                      });
-                    },
-                    icon: Icon(
-                      isFavorite
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                widget.course['title'],
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Container(
+                width: 54,
+                height: 54,
+                decoration: BoxDecoration(
+                  color: course.color.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  course.icon,
+                  size: 29,
+                  color: course.color,
                 ),
               ),
-              const SizedBox(height: 4),
-              Text('Kode: ${widget.course['code']}'),
-              Text('SKS: ${widget.course['credits']}'),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      course.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Color(0xFF17365D),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Kode: ${course.code}',
+                      style: const TextStyle(
+                        color: Colors.blueGrey,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      '3 SKS',
+                      style: TextStyle(
+                        color: Color(0xFF1976D2),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                tooltip: isFavorite
+                    ? 'Hapus dari favorit'
+                    : 'Tambah ke favorit',
+                onPressed: () {
+                  setState(() {
+                    isFavorite = !isFavorite;
+                  });
+                },
+                icon: Icon(
+                  isFavorite
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
+                  color: isFavorite ? Colors.redAccent : Colors.blueGrey,
+                ),
+              ),
             ],
           ),
         ),
@@ -358,118 +579,191 @@ class _CourseCardState extends State<CourseCard> {
 }
 
 class CourseDetailPage extends StatelessWidget {
-  final Map<String, dynamic> course;
+  final Course course;
 
-  const CourseDetailPage({
-    super.key,
-    required this.course,
-  });
+  const CourseDetailPage({super.key, required this.course});
 
-  Future<void> showFeedbackDialog(BuildContext context) async {
-    final formKey = GlobalKey<FormState>();
-    final commentController = TextEditingController();
+  void _showFeedbackDialog(BuildContext context) {
+    final controller = TextEditingController();
+    String? errorMessage;
 
-    await showDialog(
+    showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Feedback Course'),
-          content: Form(
-            key: formKey,
-            child: TextFormField(
-              controller: commentController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Komentar',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().length < 5) {
-                  return 'Minimal 5 karakter';
-                }
-                return null;
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Feedback berhasil dikirim'),
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Kirim Feedback'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Bagikan saran atau pendapatmu tentang mata kuliah ini.',
+                  ),
+                  const SizedBox(height: 14),
+                  TextField(
+                    controller: controller,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: 'Tulis feedback di sini...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      errorText: errorMessage,
                     ),
-                  );
-                }
-              },
-              child: const Text('Kirim'),
-            ),
-          ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Batal'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    if (controller.text.trim().length < 5) {
+                      setDialogState(() {
+                        errorMessage =
+                            'Feedback minimal terdiri dari 5 karakter.';
+                      });
+                    } else {
+                      Navigator.pop(dialogContext);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Terima kasih atas feedback kamu!'),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('Kirim'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
-
-    commentController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(course['title']),
+        title: const Text('Detail Mata Kuliah'),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Center(
-              child: Text(
-                '$studentId - $studentName',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
                 ),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 32,
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      course.icon,
+                      size: 34,
+                      color: course.color,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    course.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 23,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Kode mata kuliah: ${course.code}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 32),
-            const Icon(
-              Icons.menu_book,
-              size: 80,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              course['title'],
-              style: const TextStyle(
-                fontSize: 28,
+            const SizedBox(height: 24),
+            const Text(
+              'Deskripsi Mata Kuliah',
+              style: TextStyle(
+                fontSize: 19,
                 fontWeight: FontWeight.bold,
+                color: Color(0xFF17365D),
               ),
             ),
-            const SizedBox(height: 12),
-            Text('Kode Course: ${course['code']}'),
-            Text('Jumlah SKS: ${course['credits']}'),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             Text(
-              course['description'],
-              style: const TextStyle(fontSize: 16),
+              course.description,
+              style: const TextStyle(
+                fontSize: 15,
+                height: 1.7,
+                color: Color(0xFF455A64),
+              ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: const Row(
+                children: [
+                  Icon(
+                    Icons.menu_book_rounded,
+                    color: Color(0xFF1976D2),
+                    size: 30,
+                  ),
+                  SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Informasi Pembelajaran',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          'Jumlah beban pembelajaran: 3 SKS',
+                          style: TextStyle(color: Colors.blueGrey),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  showFeedbackDialog(context);
-                },
-                icon: const Icon(Icons.feedback),
+              child: FilledButton.icon(
+                onPressed: () => _showFeedbackDialog(context),
+                icon: const Icon(Icons.chat_bubble_outline_rounded),
                 label: const Text('Berikan Feedback'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
               ),
             ),
           ],
@@ -484,44 +778,190 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(20, 28, 20, 26),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3),
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      profileImage,
+                      width: 116,
+                      height: 116,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 116,
+                          height: 116,
+                          color: Colors.white,
+                          child: const Icon(
+                            Icons.person_rounded,
+                            size: 70,
+                            color: Color(0xFF1976D2),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const Text(
+                  studentName,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 23,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'NIM: $studentId',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 7,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: const Text(
+                    'Mahasiswa',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 22),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                children: [
+                  _ProfileInfoRow(
+                    icon: Icons.badge_outlined,
+                    title: 'Nama Lengkap',
+                    value: studentName,
+                  ),
+                  const Divider(height: 26),
+                  _ProfileInfoRow(
+                    icon: Icons.numbers_rounded,
+                    title: 'Nomor Induk Mahasiswa',
+                    value: studentId,
+                  ),
+                  const Divider(height: 26),
+                  const _ProfileInfoRow(
+                    icon: Icons.school_outlined,
+                    title: 'Status',
+                    value: 'Mahasiswa Aktif',
+                  ),
+                  const Divider(height: 26),
+                  const _ProfileInfoRow(
+                    icon: Icons.menu_book_rounded,
+                    title: 'Aplikasi',
+                    value: 'Course Explorer',
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Terus belajar dan kembangkan kemampuanmu!',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.blueGrey,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileInfoRow extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String value;
+
+  const _ProfileInfoRow({
+    required this.icon,
+    required this.title,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1976D2).withOpacity(0.10),
+            borderRadius: BorderRadius.circular(13),
+          ),
+          child: Icon(
+            icon,
+            color: const Color(0xFF1976D2),
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                '$studentId - $studentName',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.blueGrey,
+                  fontSize: 12,
                 ),
               ),
-              const SizedBox(height: 24),
-              const Icon(
-                Icons.person,
-                size: 80,
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Profile',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+              const SizedBox(height: 5),
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Color(0xFF17365D),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 8),
-              const Text(
-                studentName,
-                style: TextStyle(fontSize: 18),
-              ),
-              const Text(studentId),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 }
