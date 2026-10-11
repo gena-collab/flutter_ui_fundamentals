@@ -1,7 +1,11 @@
+﻿
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'course_state.dart';
+import 'services/course_service.dart';
+import 'repositories/course_repository.dart';
+import 'providers/course_provider.dart';
 import 'screens/course_explorer_page.dart';
 
 // Nama: Gena Anggarani
@@ -9,8 +13,17 @@ import 'screens/course_explorer_page.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => CourseState(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => CourseState(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CourseProvider(
+            CourseRepository(CourseService()),
+          )..loadCourses(),
+        ),
+      ],
       child: const CourseExplorerApp(),
     ),
   );
@@ -26,7 +39,9 @@ class CourseExplorerApp extends StatelessWidget {
       title: 'Course Explorer',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+        ),
         scaffoldBackgroundColor: const Color(0xFFF5F8FC),
       ),
       home: const CourseExplorerPage(),

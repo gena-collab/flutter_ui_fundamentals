@@ -2,15 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../course_data.dart';
+import '../course_data.dart' as ui;
 import '../course_state.dart';
-import '../widgets/course_card.dart';
+import '../providers/course_provider.dart';
 
 // Nama: Gena Anggarani
 // NIM: 2415051038
 
 class FavoritesPage extends StatelessWidget {
-  final ValueChanged<Course> onCourseTap;
+  final ValueChanged<ui.Course> onCourseTap;
 
   const FavoritesPage({
     super.key,
@@ -19,10 +19,40 @@ class FavoritesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final courseState = context.watch<CourseState>();
-    final favoriteCourses = courses
-        .where((course) => courseState.isFavorite(course.code))
+    final favoriteState = context.watch<CourseState>();
+    final provider = context.watch<CourseProvider>();
+
+    final favoriteCourses = provider.courses
+        .where((course) => favoriteState.isFavorite(course.code))
         .toList();
+
+    if (provider.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (provider.error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                provider.error!,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: provider.loadCourses,
+                child: const Text('Coba Lagi'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -36,7 +66,7 @@ class FavoritesPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Total Favorit: ${courseState.favoriteCount}',
+              'Total Favorit: ${favoriteCourses.length}',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -65,9 +95,42 @@ class FavoritesPage extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final course = favoriteCourses[index];
 
-                        return CourseCard(
-                          course: course,
-                          onTap: () => onCourseTap(course),
+                        final uiCourse = ui.Course(
+                          name: course.title,
+                          code: course.code,
+                          icon: Icons.menu_book,
+                          description:
+                              '${course.credits} SKS • Status: ${course.status}',
+                        );
+
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: ListTile(
+                            leading: const CircleAvatar(
+                              backgroundColor: Color(0xFFE3F2FD),
+                              child: Icon(
+                                Icons.menu_book,
+                                color: Colors.blue,
+                              ),
+                            ),
+                            title: Text(course.title),
+                            subtitle: Text(
+                              '${course.code} • ${course.credits} SKS • ${course.status}',
+                            ),
+                            onTap: () => onCourseTap(uiCourse),
+                            trailing: IconButton(
+                              tooltip: 'Hapus dari favorit',
+                              onPressed: () {
+                                context
+                                    .read<CourseState>()
+                                    .toggleFavorite(course.code);
+                              },
+                              icon: const Icon(
+                                Icons.favorite,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
                         );
                       },
                     ),
