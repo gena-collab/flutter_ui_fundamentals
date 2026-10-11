@@ -1,5 +1,8 @@
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'course_state.dart';
 
 // Nama: Gena Anggarani
 // NIM: 2415051038
@@ -8,7 +11,12 @@ const String studentName = 'Gena Anggarani';
 const String studentId = '2415051038';
 
 void main() {
-  runApp(const CourseExplorerApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CourseState(),
+      child: const CourseExplorerApp(),
+    ),
+  );
 }
 
 class CourseExplorerApp extends StatelessWidget {
@@ -86,7 +94,7 @@ class CourseExplorerPage extends StatefulWidget {
 class _CourseExplorerPageState extends State<CourseExplorerPage> {
   int selectedIndex = 0;
 
-  // Single source of truth untuk status favorit.
+  // Favorit lama dipertahankan untuk tahap sebelumnya.
   final Set<String> favorites = {};
 
   void toggleFavorite(String courseCode) {
@@ -104,11 +112,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          icon: Icon(
-            course.icon,
-            size: 42,
-            color: Colors.blue,
-          ),
+          icon: Icon(course.icon, size: 42, color: Colors.blue),
           title: Text(course.name),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -313,10 +317,7 @@ class BlueHeader extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
         ],
       ),
@@ -343,10 +344,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Tahap 4: ValueNotifier untuk nilai sederhana.
   final ValueNotifier<int> counter = ValueNotifier<int>(0);
-
-  // Pembanding: state biasa menggunakan setState().
   int setStateCounter = 0;
 
   @override
@@ -443,9 +441,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 OutlinedButton.icon(
                   onPressed: () {
-                    setState(() {
-                      setStateCounter++;
-                    });
+                    setState(() => setStateCounter++);
                   },
                   icon: const Icon(Icons.refresh),
                   label: const Text('Tambah dengan setState()'),
