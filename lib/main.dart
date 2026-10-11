@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 // Nama: Gena Anggarani
@@ -6,7 +7,6 @@ import 'package:flutter/material.dart';
 const String studentName = 'Gena Anggarani';
 const String studentId = '2415051038';
 const String profileImage = 'assets/images/profile.jpeg';
-
 
 void main() {
   runApp(const CourseExplorerApp());
@@ -32,40 +32,35 @@ const List<Course> courses = [
   Course(
     code: 'PM001',
     name: 'Pemrograman Mobile',
-    description:
-        'Mempelajari pengembangan aplikasi mobile, Flutter, Dart, dan desain antarmuka.',
+    description: 'Mempelajari Flutter, Dart, dan desain antarmuka aplikasi.',
     icon: Icons.phone_android_rounded,
     color: Color(0xFF1976D2),
   ),
   Course(
     code: 'PW002',
     name: 'Pemrograman Web',
-    description:
-        'Mempelajari dasar pengembangan website dan teknologi web modern.',
+    description: 'Mempelajari pengembangan website dan teknologi web.',
     icon: Icons.language_rounded,
     color: Color(0xFF0097A7),
   ),
   Course(
     code: 'BD003',
     name: 'Basis Data',
-    description:
-        'Mempelajari pengelolaan data, perancangan database, dan SQL.',
+    description: 'Mempelajari perancangan database dan SQL.',
     icon: Icons.storage_rounded,
     color: Color(0xFF7C4DFF),
   ),
   Course(
     code: 'AI004',
     name: 'Kecerdasan Buatan',
-    description:
-        'Mengenal kecerdasan buatan, machine learning, dan penerapannya.',
+    description: 'Mengenal AI dan machine learning.',
     icon: Icons.psychology_rounded,
     color: Color(0xFFEF6C00),
   ),
   Course(
     code: 'RPL005',
     name: 'Rekayasa Perangkat Lunak',
-    description:
-        'Mempelajari analisis kebutuhan, desain, dan pengembangan perangkat lunak.',
+    description: 'Mempelajari analisis dan pengembangan perangkat lunak.',
     icon: Icons.code_rounded,
     color: Color(0xFF00897B),
   ),
@@ -83,7 +78,6 @@ class CourseExplorerApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1976D2),
-          brightness: Brightness.light,
         ),
         scaffoldBackgroundColor: const Color(0xFFF3F7FC),
         appBarTheme: const AppBarTheme(
@@ -94,7 +88,7 @@ class CourseExplorerApp extends StatelessWidget {
           color: Colors.white,
           elevation: 1,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(18),
           ),
         ),
       ),
@@ -107,44 +101,59 @@ class CourseExplorerPage extends StatefulWidget {
   const CourseExplorerPage({super.key});
 
   @override
-  State<CourseExplorerPage> createState() => _CourseExplorerPageState();
+  State<CourseExplorerPage> createState() =>
+      _CourseExplorerPageState();
 }
 
 class _CourseExplorerPageState extends State<CourseExplorerPage> {
   int selectedIndex = 0;
 
-  final List<Widget> pages = const [
-    HomePage(),
-    CoursesPage(),
-    ProfilePage(),
-  ];
+  // Shared state: satu sumber data favorit untuk beberapa halaman.
+  final Set<String> favorites = {};
 
-  final List<String> titles = [
-    'Course Explorer',
-    'Daftar Mata Kuliah',
-    'Profil Mahasiswa',
-  ];
+  void toggleFavorite(String courseCode) {
+    setState(() {
+      if (favorites.contains(courseCode)) {
+        favorites.remove(courseCode);
+      } else {
+        favorites.add(courseCode);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final bool isWide = MediaQuery.sizeOf(context).width >= 840;
+    final isWide = MediaQuery.sizeOf(context).width >= 840;
+
+    // Dua child menerima shared state dan callback dari parent.
+    final pages = [
+      HomePage(
+        favorites: favorites,
+        onFavoriteToggle: toggleFavorite,
+      ),
+      CoursesPage(
+        favorites: favorites,
+        onFavoriteToggle: toggleFavorite,
+      ),
+      const ProfilePage(),
+    ];
+
+    final titles = [
+      'Course Explorer',
+      'Daftar Mata Kuliah',
+      'Profil Mahasiswa',
+    ];
 
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
         title: Text(
           titles[selectedIndex],
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.2,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
             ),
           ),
         ),
@@ -152,7 +161,6 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: CircleAvatar(
-              radius: 18,
               backgroundColor: Colors.white,
               child: ClipOval(
                 child: Image.asset(
@@ -160,12 +168,8 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                   width: 36,
                   height: 36,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(
-                      Icons.person,
-                      color: Color(0xFF1976D2),
-                    );
-                  },
+                  errorBuilder: (_, __, ___) =>
+                      const Icon(Icons.person, color: Colors.blue),
                 ),
               ),
             ),
@@ -181,21 +185,20 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                 setState(() => selectedIndex = index);
               },
               labelType: NavigationRailLabelType.all,
-              backgroundColor: Colors.white,
               destinations: const [
                 NavigationRailDestination(
                   icon: Icon(Icons.home_outlined),
-                  selectedIcon: Icon(Icons.home_rounded),
+                  selectedIcon: Icon(Icons.home),
                   label: Text('Home'),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.menu_book_outlined),
-                  selectedIcon: Icon(Icons.menu_book_rounded),
+                  selectedIcon: Icon(Icons.menu_book),
                   label: Text('Courses'),
                 ),
                 NavigationRailDestination(
-                  icon: Icon(Icons.person_outline_rounded),
-                  selectedIcon: Icon(Icons.person_rounded),
+                  icon: Icon(Icons.person_outline),
+                  selectedIcon: Icon(Icons.person),
                   label: Text('Profile'),
                 ),
               ],
@@ -216,22 +219,17 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
               onDestinationSelected: (index) {
                 setState(() => selectedIndex = index);
               },
-              backgroundColor: Colors.white,
-              indicatorColor: const Color(0xFFD9EAFE),
               destinations: const [
                 NavigationDestination(
                   icon: Icon(Icons.home_outlined),
-                  selectedIcon: Icon(Icons.home_rounded),
                   label: 'Home',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.menu_book_outlined),
-                  selectedIcon: Icon(Icons.menu_book_rounded),
                   label: 'Courses',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.person_outline_rounded),
-                  selectedIcon: Icon(Icons.person_rounded),
+                  icon: Icon(Icons.person_outline),
                   label: 'Profile',
                 ),
               ],
@@ -241,7 +239,14 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final Set<String> favorites;
+  final ValueChanged<String> onFavoriteToggle;
+
+  const HomePage({
+    super.key,
+    required this.favorites,
+    required this.onFavoriteToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -256,17 +261,8 @@ class HomePage extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF1976D2).withOpacity(0.20),
-                  blurRadius: 18,
-                  offset: const Offset(0, 8),
-                ),
-              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -276,7 +272,7 @@ class HomePage extends StatelessWidget {
                   color: Colors.white,
                   size: 34,
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
                 const Text(
                   'Halo, $studentName!',
                   style: TextStyle(
@@ -287,92 +283,56 @@ class HomePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Yuk, jelajahi mata kuliah dan terus kembangkan kemampuanmu.',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
+                  'Yuk, jelajahi mata kuliah dan kembangkan kemampuanmu.',
+                  style: TextStyle(color: Colors.white),
                 ),
-                const SizedBox(height: 18),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 9,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.18),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: const Text(
-                    'NIM: $studentId',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                const SizedBox(height: 12),
+                const Text(
+                  'NIM: $studentId',
+                  style: TextStyle(color: Colors.white),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 26),
-          const Text(
+          const SizedBox(height: 24),
+          Text(
             'Ringkasan Belajar',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF17365D),
-            ),
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: _SummaryCard(
-                  icon: Icons.menu_book_rounded,
                   title: 'Mata Kuliah',
                   value: '${courses.length}',
-                  color: const Color(0xFF1976D2),
+                  icon: Icons.menu_book_rounded,
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: _SummaryCard(
-                  icon: Icons.school_rounded,
-                  title: 'Status',
-                  value: 'Aktif',
-                  color: Color(0xFF00897B),
+                  title: 'Favorit',
+                  value: '${favorites.length}',
+                  icon: Icons.favorite_rounded,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 28),
-          const Text(
+          const SizedBox(height: 24),
+          Text(
             'Mata Kuliah',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF17365D),
-            ),
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: 6),
-          const Text(
-            'Pilih mata kuliah untuk melihat detailnya.',
-            style: TextStyle(color: Colors.blueGrey),
-          ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           ...courses.map(
             (course) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: CourseCard(course: course),
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Center(
-            child: Text(
-              'Course Explorer • Belajar, berkembang, dan berkarya',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.blueGrey, fontSize: 12),
+              child: CourseCard(
+                course: course,
+                isFavorite: favorites.contains(course.code),
+                onFavoriteToggle: () => onFavoriteToggle(course.code),
+              ),
             ),
           ),
         ],
@@ -381,53 +341,15 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class _SummaryCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-  final Color color;
-
-  const _SummaryCard({
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              backgroundColor: color.withOpacity(0.12),
-              child: Icon(icon, color: color),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 23,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF17365D),
-              ),
-            ),
-            Text(
-              title,
-              style: const TextStyle(color: Colors.blueGrey),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class CoursesPage extends StatelessWidget {
-  const CoursesPage({super.key});
+  final Set<String> favorites;
+  final ValueChanged<String> onFavoriteToggle;
+
+  const CoursesPage({
+    super.key,
+    required this.favorites,
+    required this.onFavoriteToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -439,32 +361,33 @@ class CoursesPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Semua Mata Kuliah',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF17365D),
-            ),
+            style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
-            'Terdapat ${courses.length} mata kuliah yang bisa kamu jelajahi.',
-            style: const TextStyle(color: Colors.blueGrey),
+            '${courses.length} mata kuliah • ${favorites.length} favorit',
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: courses.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: columns,
-              crossAxisSpacing: 14,
-              mainAxisSpacing: 14,
-              mainAxisExtent: 170,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              mainAxisExtent: 180,
             ),
             itemBuilder: (context, index) {
-              return CourseCard(course: courses[index]);
+              final course = courses[index];
+              return CourseCard(
+                course: course,
+                isFavorite: favorites.contains(course.code),
+                onFavoriteToggle: () =>
+                    onFavoriteToggle(course.code),
+              );
             },
           ),
         ],
@@ -473,23 +396,58 @@ class CoursesPage extends StatelessWidget {
   }
 }
 
-class CourseCard extends StatefulWidget {
-  final Course course;
+class _SummaryCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
 
-  const CourseCard({super.key, required this.course});
-
-  @override
-  State<CourseCard> createState() => _CourseCardState();
-}
-
-class _CourseCardState extends State<CourseCard> {
-  // Local state: status favorit hanya dikelola oleh kartu ini.
-  bool isFavorite = false;
+  const _SummaryCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final course = widget.course;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: const Color(0xFF1976D2), size: 28),
+            const SizedBox(height: 10),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF17365D),
+              ),
+            ),
+            Text(title),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
+// Child menerima nilai favorit dan callback melalui constructor.
+class CourseCard extends StatelessWidget {
+  final Course course;
+  final bool isFavorite;
+  final VoidCallback onFavoriteToggle;
+
+  const CourseCard({
+    super.key,
+    required this.course,
+    required this.isFavorite,
+    required this.onFavoriteToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -502,23 +460,23 @@ class _CourseCardState extends State<CourseCard> {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.all(14),
           child: Row(
             children: [
               Container(
-                width: 54,
-                height: 54,
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
                   color: course.color.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
                   course.icon,
-                  size: 29,
                   color: course.color,
+                  size: 28,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -530,24 +488,16 @@ class _CourseCardState extends State<CourseCard> {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 15,
                         color: Color(0xFF17365D),
                       ),
                     ),
                     const SizedBox(height: 6),
+                    Text('Kode: ${course.code}'),
+                    const SizedBox(height: 5),
                     Text(
-                      'Kode: ${course.code}',
-                      style: const TextStyle(
-                        color: Colors.blueGrey,
-                        fontSize: 12,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
                       '3 SKS',
                       style: TextStyle(
-                        color: Color(0xFF1976D2),
-                        fontSize: 12,
+                        color: course.color,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -555,14 +505,8 @@ class _CourseCardState extends State<CourseCard> {
                 ),
               ),
               IconButton(
-                tooltip: isFavorite
-                    ? 'Hapus dari favorit'
-                    : 'Tambah ke favorit',
-                onPressed: () {
-                  setState(() {
-                    isFavorite = !isFavorite;
-                  });
-                },
+                tooltip: isFavorite ? 'Hapus favorit' : 'Tambah favorit',
+                onPressed: onFavoriteToggle,
                 icon: Icon(
                   isFavorite
                       ? Icons.favorite_rounded
@@ -594,25 +538,14 @@ class CourseDetailPage extends StatelessWidget {
           builder: (context, setDialogState) {
             return AlertDialog(
               title: const Text('Kirim Feedback'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Bagikan saran atau pendapatmu tentang mata kuliah ini.',
-                  ),
-                  const SizedBox(height: 14),
-                  TextField(
-                    controller: controller,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      hintText: 'Tulis feedback di sini...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      errorText: errorMessage,
-                    ),
-                  ),
-                ],
+              content: TextField(
+                controller: controller,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  hintText: 'Tulis feedback di sini...',
+                  border: const OutlineInputBorder(),
+                  errorText: errorMessage,
+                ),
               ),
               actions: [
                 TextButton(
@@ -623,8 +556,7 @@ class CourseDetailPage extends StatelessWidget {
                   onPressed: () {
                     if (controller.text.trim().length < 5) {
                       setDialogState(() {
-                        errorMessage =
-                            'Feedback minimal terdiri dari 5 karakter.';
+                        errorMessage = 'Feedback minimal 5 karakter.';
                       });
                     } else {
                       Navigator.pop(dialogContext);
@@ -648,16 +580,7 @@ class CourseDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Mata Kuliah'),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
-            ),
-          ),
-        ),
-      ),
+      appBar: AppBar(title: const Text('Detail Mata Kuliah')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -675,16 +598,8 @@ class CourseDetailPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    radius: 32,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      course.icon,
-                      size: 34,
-                      color: course.color,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
+                  Icon(course.icon, color: Colors.white, size: 42),
+                  const SizedBox(height: 16),
                   Text(
                     course.name,
                     style: const TextStyle(
@@ -693,7 +608,6 @@ class CourseDetailPage extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
                   Text(
                     'Kode mata kuliah: ${course.code}',
                     style: const TextStyle(color: Colors.white),
@@ -702,68 +616,33 @@ class CourseDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Deskripsi Mata Kuliah',
-              style: TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF17365D),
-              ),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 10),
             Text(
               course.description,
-              style: const TextStyle(
-                fontSize: 15,
-                height: 1.7,
-                color: Color(0xFF455A64),
-              ),
+              style: const TextStyle(height: 1.7),
             ),
             const SizedBox(height: 24),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: const Row(
-                children: [
-                  Icon(
-                    Icons.menu_book_rounded,
-                    color: Color(0xFF1976D2),
-                    size: 30,
-                  ),
-                  SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Informasi Pembelajaran',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          'Jumlah beban pembelajaran: 3 SKS',
-                          style: TextStyle(color: Colors.blueGrey),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+            const Card(
+              child: ListTile(
+                leading: Icon(
+                  Icons.menu_book_rounded,
+                  color: Color(0xFF1976D2),
+                ),
+                title: Text('Informasi Pembelajaran'),
+                subtitle: Text('Jumlah beban pembelajaran: 3 SKS'),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: () => _showFeedbackDialog(context),
-                icon: const Icon(Icons.chat_bubble_outline_rounded),
+                icon: const Icon(Icons.chat_bubble_outline),
                 label: const Text('Berikan Feedback'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
               ),
             ),
           ],
@@ -784,48 +663,30 @@ class ProfilePage extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 28, 20, 26),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(24),
             ),
             child: Column(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3),
-                  ),
-                  child: ClipOval(
-                    child: Image.asset(
-                      profileImage,
-                      width: 116,
-                      height: 116,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 116,
-                          height: 116,
-                          color: Colors.white,
-                          child: const Icon(
-                            Icons.person_rounded,
-                            size: 70,
-                            color: Color(0xFF1976D2),
-                          ),
-                        );
-                      },
+                ClipOval(
+                  child: Image.asset(
+                    profileImage,
+                    width: 116,
+                    height: 116,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const CircleAvatar(
+                      radius: 58,
+                      child: Icon(Icons.person, size: 60),
                     ),
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
                 const Text(
                   studentName,
-                  textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 23,
@@ -835,133 +696,50 @@ class ProfilePage extends StatelessWidget {
                 const SizedBox(height: 8),
                 const Text(
                   'NIM: $studentId',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                  ),
+                  style: TextStyle(color: Colors.white),
                 ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 7,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.18),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: const Text(
-                    'Mahasiswa',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Mahasiswa',
+                  style: TextStyle(color: Colors.white),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 20),
           Card(
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                children: [
-                  _ProfileInfoRow(
-                    icon: Icons.badge_outlined,
-                    title: 'Nama Lengkap',
-                    value: studentName,
-                  ),
-                  const Divider(height: 26),
-                  _ProfileInfoRow(
-                    icon: Icons.numbers_rounded,
-                    title: 'Nomor Induk Mahasiswa',
-                    value: studentId,
-                  ),
-                  const Divider(height: 26),
-                  const _ProfileInfoRow(
-                    icon: Icons.school_outlined,
-                    title: 'Status',
-                    value: 'Mahasiswa Aktif',
-                  ),
-                  const Divider(height: 26),
-                  const _ProfileInfoRow(
-                    icon: Icons.menu_book_rounded,
-                    title: 'Aplikasi',
-                    value: 'Course Explorer',
-                  ),
-                ],
-              ),
+            child: Column(
+              children: const [
+                ListTile(
+                  leading: Icon(Icons.badge_outlined),
+                  title: Text('Nama Lengkap'),
+                  subtitle: Text(studentName),
+                ),
+                Divider(height: 1),
+                ListTile(
+                  leading: Icon(Icons.numbers),
+                  title: Text('Nomor Induk Mahasiswa'),
+                  subtitle: Text(studentId),
+                ),
+                Divider(height: 1),
+                ListTile(
+                  leading: Icon(Icons.school_outlined),
+                  title: Text('Status'),
+                  subtitle: Text('Mahasiswa Aktif'),
+                ),
+                Divider(height: 1),
+                ListTile(
+                  leading: Icon(Icons.menu_book),
+                  title: Text('Aplikasi'),
+                  subtitle: Text('Course Explorer'),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Terus belajar dan kembangkan kemampuanmu!',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.blueGrey,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
+          const Text('Terus belajar dan kembangkan kemampuanmu!'),
         ],
       ),
-    );
-  }
-}
-
-class _ProfileInfoRow extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-
-  const _ProfileInfoRow({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: const Color(0xFF1976D2).withOpacity(0.10),
-            borderRadius: BorderRadius.circular(13),
-          ),
-          child: Icon(
-            icon,
-            color: const Color(0xFF1976D2),
-          ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.blueGrey,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                value,
-                style: const TextStyle(
-                  color: Color(0xFF17365D),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
