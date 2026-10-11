@@ -1,15 +1,23 @@
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../course_data.dart';
+import '../course_state.dart';
 import 'courses_page.dart';
+import 'favorites_page.dart';
 import 'home_page.dart';
 import 'profile_page.dart';
+
+// Nama: Gena Anggarani
+// NIM: 2415051038
 
 class CourseExplorerPage extends StatefulWidget {
   const CourseExplorerPage({super.key});
 
   @override
-  State<CourseExplorerPage> createState() => _CourseExplorerPageState();
+  State<CourseExplorerPage> createState() =>
+      _CourseExplorerPageState();
 }
 
 class _CourseExplorerPageState extends State<CourseExplorerPage> {
@@ -18,32 +26,86 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
   void showCourseDetail(Course course) {
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        icon: Icon(course.icon, size: 42, color: Colors.blue),
-        title: Text(course.name),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Kode: ${course.code}'),
-            const SizedBox(height: 12),
-            Text(course.description),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Tutup'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              showFeedbackDialog(course);
-            },
-            child: const Text('Beri Masukan'),
-          ),
-        ],
-      ),
+      builder: (dialogContext) {
+        return Consumer<CourseState>(
+          builder: (context, courseState, child) {
+            final isFavorite =
+                courseState.isFavorite(course.code);
+
+            return AlertDialog(
+              icon: Icon(
+                course.icon,
+                size: 42,
+                color: Colors.blue,
+              ),
+              title: Text(course.name),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Kode: ${course.code}'),
+                  const SizedBox(height: 12),
+                  Text(course.description),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Icon(
+                        isFavorite
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: isFavorite
+                            ? Colors.red
+                            : Colors.grey,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          isFavorite
+                              ? 'Sudah ditambahkan ke favorit'
+                              : 'Belum ditambahkan ke favorit',
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton.icon(
+                  onPressed: () {
+                    courseState.toggleFavorite(course.code);
+                  },
+                  icon: Icon(
+                    isFavorite
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                    color: isFavorite
+                        ? Colors.red
+                        : Colors.blue,
+                  ),
+                  label: Text(
+                    isFavorite
+                        ? 'Hapus Favorit'
+                        : 'Tambah Favorit',
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text('Tutup'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                    showFeedbackDialog(course);
+                  },
+                  child: const Text('Beri Masukan'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -52,35 +114,42 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
 
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('Masukan: ${course.name}'),
-        content: TextField(
-          controller: controller,
-          maxLines: 3,
-          decoration: const InputDecoration(
-            labelText: 'Tulis masukan',
-            hintText: 'Masukkan pendapat kamu...',
-            border: OutlineInputBorder(),
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text('Masukan: ${course.name}'),
+          content: TextField(
+            controller: controller,
+            maxLines: 3,
+            decoration: const InputDecoration(
+              labelText: 'Tulis masukan',
+              hintText: 'Masukkan pendapat kamu...',
+              border: OutlineInputBorder(),
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Batal'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Terima kasih atas masukannya!'),
-                ),
-              );
-            },
-            child: const Text('Kirim'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Batal'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Terima kasih atas masukannya!',
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Kirim'),
+            ),
+          ],
+        );
+      },
     ).then((_) => controller.dispose());
   }
 
@@ -93,9 +162,16 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
         final pages = [
           HomePage(
             onCourseTap: showCourseDetail,
-            onNavigate: (index) => setState(() => selectedIndex = index),
+            onNavigate: (index) {
+              setState(() => selectedIndex = index);
+            },
           ),
-          CoursesPage(onCourseTap: showCourseDetail),
+          CoursesPage(
+            onCourseTap: showCourseDetail,
+          ),
+          FavoritesPage(
+            onCourseTap: showCourseDetail,
+          ),
           const ProfilePage(),
         ];
 
@@ -130,6 +206,11 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                         label: Text('Courses'),
                       ),
                       NavigationRailDestination(
+                        icon: Icon(Icons.favorite_border),
+                        selectedIcon: Icon(Icons.favorite),
+                        label: Text('Favorites'),
+                      ),
+                      NavigationRailDestination(
                         icon: Icon(Icons.person_outline),
                         selectedIcon: Icon(Icons.person),
                         label: Text('Profile'),
@@ -162,6 +243,11 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                       icon: Icon(Icons.menu_book_outlined),
                       selectedIcon: Icon(Icons.menu_book),
                       label: 'Courses',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.favorite_border),
+                      selectedIcon: Icon(Icons.favorite),
+                      label: 'Favorites',
                     ),
                     NavigationDestination(
                       icon: Icon(Icons.person_outline),
