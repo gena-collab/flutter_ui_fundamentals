@@ -94,50 +94,35 @@ class CourseExplorerPage extends StatefulWidget {
 class _CourseExplorerPageState extends State<CourseExplorerPage> {
   int selectedIndex = 0;
 
-  // Favorit lama dipertahankan untuk tahap sebelumnya.
-  final Set<String> favorites = {};
-
-  void toggleFavorite(String courseCode) {
-    setState(() {
-      if (favorites.contains(courseCode)) {
-        favorites.remove(courseCode);
-      } else {
-        favorites.add(courseCode);
-      }
-    });
-  }
-
   void showCourseDetail(Course course) {
     showDialog<void>(
       context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          icon: Icon(course.icon, size: 42, color: Colors.blue),
-          title: Text(course.name),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Kode: ${course.code}'),
-              const SizedBox(height: 12),
-              Text(course.description),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Tutup'),
-            ),
-            FilledButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                showFeedbackDialog(course);
-              },
-              child: const Text('Beri Masukan'),
-            ),
+      builder: (dialogContext) => AlertDialog(
+        icon: Icon(course.icon, size: 42, color: Colors.blue),
+        title: Text(course.name),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Kode: ${course.code}'),
+            const SizedBox(height: 12),
+            Text(course.description),
           ],
-        );
-      },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Tutup'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              showFeedbackDialog(course);
+            },
+            child: const Text('Beri Masukan'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -146,37 +131,35 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
 
     showDialog<void>(
       context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: Text('Masukan: ${course.name}'),
-          content: TextField(
-            controller: controller,
-            maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Tulis masukan',
-              hintText: 'Masukkan pendapat kamu...',
-              border: OutlineInputBorder(),
-            ),
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Masukan: ${course.name}'),
+        content: TextField(
+          controller: controller,
+          maxLines: 3,
+          decoration: const InputDecoration(
+            labelText: 'Tulis masukan',
+            hintText: 'Masukkan pendapat kamu...',
+            border: OutlineInputBorder(),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Batal'),
-            ),
-            FilledButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Terima kasih atas masukannya!'),
-                  ),
-                );
-              },
-              child: const Text('Kirim'),
-            ),
-          ],
-        );
-      },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Terima kasih atas masukannya!'),
+                ),
+              );
+            },
+            child: const Text('Kirim'),
+          ),
+        ],
+      ),
     ).then((_) => controller.dispose());
   }
 
@@ -188,18 +171,10 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
 
         final pages = [
           HomePage(
-            favorites: favorites,
-            onFavoriteToggle: toggleFavorite,
             onCourseTap: showCourseDetail,
-            onNavigate: (index) {
-              setState(() => selectedIndex = index);
-            },
+            onNavigate: (index) => setState(() => selectedIndex = index),
           ),
-          CoursesPage(
-            favorites: favorites,
-            onFavoriteToggle: toggleFavorite,
-            onCourseTap: showCourseDetail,
-          ),
+          CoursesPage(onCourseTap: showCourseDetail),
           const ProfilePage(),
         ];
 
@@ -326,15 +301,11 @@ class BlueHeader extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  final Set<String> favorites;
-  final ValueChanged<String> onFavoriteToggle;
   final ValueChanged<Course> onCourseTap;
   final ValueChanged<int> onNavigate;
 
   const HomePage({
     super.key,
-    required this.favorites,
-    required this.onFavoriteToggle,
     required this.onCourseTap,
     required this.onNavigate,
   });
@@ -373,25 +344,13 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(width: 12),
-            Expanded(
-              child: _SummaryCard(
-                icon: Icons.favorite,
-                title: 'Mata Kuliah Favorit',
-                value: '${widget.favorites.length}',
-              ),
-            ),
+            const Expanded(child: FavoriteCountCard()),
           ],
         ),
         const SizedBox(height: 28),
         const Text(
           'Eksperimen ValueNotifier',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 6),
-        const Text(
-          'Tekan tombol + untuk mengubah nilai tanpa setState() '
-          'pada seluruh parent.',
-          style: TextStyle(color: Colors.black54),
         ),
         const SizedBox(height: 14),
         Card(
@@ -401,35 +360,26 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(18),
             child: Column(
               children: [
-                const Text(
-                  'Nilai ValueNotifier',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
+                const Text('Nilai ValueNotifier'),
                 const SizedBox(height: 8),
                 ValueListenableBuilder<int>(
                   valueListenable: counter,
-                  builder: (context, value, child) {
-                    return Text(
-                      '$value',
-                      style: const TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                      ),
-                    );
-                  },
+                  builder: (context, value, child) => Text(
+                    '$value',
+                    style: const TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 8),
                 FilledButton.icon(
                   onPressed: () => counter.value++,
                   icon: const Icon(Icons.add),
                   label: const Text('Tambah ValueNotifier'),
                 ),
                 const Divider(height: 30),
-                const Text(
-                  'Nilai setState() sebagai pembanding',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
+                const Text('Nilai setState() sebagai pembanding'),
                 const SizedBox(height: 8),
                 Text(
                   '$setStateCounter',
@@ -440,9 +390,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 OutlinedButton.icon(
-                  onPressed: () {
-                    setState(() => setStateCounter++);
-                  },
+                  onPressed: () => setState(() => setStateCounter++),
                   icon: const Icon(Icons.refresh),
                   label: const Text('Tambah dengan setState()'),
                 ),
@@ -467,8 +415,6 @@ class _HomePageState extends State<HomePage> {
         ...courses.take(3).map(
           (course) => CourseCard(
             course: course,
-            isFavorite: widget.favorites.contains(course.code),
-            onFavoriteToggle: () => widget.onFavoriteToggle(course.code),
             onTap: () => widget.onCourseTap(course),
           ),
         ),
@@ -477,17 +423,26 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// watch(): widget ini rebuild ketika jumlah favorit berubah.
+class FavoriteCountCard extends StatelessWidget {
+  const FavoriteCountCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final courseState = context.watch<CourseState>();
+
+    return _SummaryCard(
+      icon: Icons.favorite,
+      title: 'Mata Kuliah Favorit',
+      value: '${courseState.favorites.length}',
+    );
+  }
+}
+
 class CoursesPage extends StatelessWidget {
-  final Set<String> favorites;
-  final ValueChanged<String> onFavoriteToggle;
   final ValueChanged<Course> onCourseTap;
 
-  const CoursesPage({
-    super.key,
-    required this.favorites,
-    required this.onFavoriteToggle,
-    required this.onCourseTap,
-  });
+  const CoursesPage({super.key, required this.onCourseTap});
 
   @override
   Widget build(BuildContext context) {
@@ -502,8 +457,6 @@ class CoursesPage extends StatelessWidget {
         ...courses.map(
           (course) => CourseCard(
             course: course,
-            isFavorite: favorites.contains(course.code),
-            onFavoriteToggle: () => onFavoriteToggle(course.code),
             onTap: () => onCourseTap(course),
           ),
         ),
@@ -514,15 +467,11 @@ class CoursesPage extends StatelessWidget {
 
 class CourseCard extends StatelessWidget {
   final Course course;
-  final bool isFavorite;
-  final VoidCallback onFavoriteToggle;
   final VoidCallback onTap;
 
   const CourseCard({
     super.key,
     required this.course,
-    required this.isFavorite,
-    required this.onFavoriteToggle,
     required this.onTap,
   });
 
@@ -545,13 +494,22 @@ class CourseCard extends StatelessWidget {
         ),
         subtitle: Text(course.code),
         onTap: onTap,
-        trailing: IconButton(
-          tooltip: isFavorite ? 'Hapus dari favorit' : 'Tambah ke favorit',
-          onPressed: onFavoriteToggle,
-          icon: Icon(
-            isFavorite ? Icons.favorite : Icons.favorite_border,
-            color: isFavorite ? Colors.red : Colors.grey,
-          ),
+        trailing: Consumer<CourseState>(
+          builder: (context, courseState, child) {
+            final isFavorite = courseState.isFavorite(course.code);
+
+            return IconButton(
+              tooltip: isFavorite ? 'Hapus dari favorit' : 'Tambah ke favorit',
+              onPressed: () {
+                // read(): panggil aksi tanpa listen.
+                context.read<CourseState>().toggleFavorite(course.code);
+              },
+              icon: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? Colors.red : Colors.grey,
+              ),
+            );
+          },
         ),
       ),
     );
