@@ -1,17 +1,17 @@
-# flutter_ui_fundamentals
+# Course Explorer
 
-A new Flutter project.
+## Struktur Arsitektur
 
-## Getting Started
+- `models/`: menyimpan model data mata kuliah.
+- `services/`: mengambil dan membaca data mata kuliah dari JSON.
+- `repositories/`: menjadi perantara antara Service dan Provider.
+- `providers/`: mengelola state, loading, error, dan data mata kuliah.
+- `screens/`: menampilkan halaman Home, Courses, Favorites, dan Profile.
+- `widgets/`: menyimpan komponen UI yang digunakan kembali.
+- `assets/data/`: menyimpan data mata kuliah dalam format JSON.
 
-This project is a starting point for a Flutter application.
+## Arah Dependency
 
-A few resources to get you started if this is your first Flutter project:
+Screen/Widget → Provider → Repository → Service/Data Source.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+UI tidak membaca JSON secara langsung. Provider mengelola state tanpa menyimpan `BuildContext` sebagai state.
