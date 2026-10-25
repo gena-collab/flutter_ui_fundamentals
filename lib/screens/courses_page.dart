@@ -6,6 +6,7 @@ import '../course_data.dart' as ui;
 import '../course_state.dart';
 import '../providers/course_provider.dart';
 import '../widgets/blue_header.dart';
+import '../widgets/error_view.dart';
 
 // Nama: Gena Anggarani
 // NIM: 2415051038
@@ -29,32 +30,10 @@ class CoursesPage extends StatelessWidget {
         }
 
         if (provider.error != null) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 48,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    provider.error!,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  FilledButton.icon(
-                    onPressed: provider.loadCourses,
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Coba Lagi'),
-                  ),
-                ],
-              ),
-            ),
-          );
+          return ErrorView(
+             message: provider.error!,
+             onRetry: provider.loadCourses,
+           );
         }
 
         if (provider.courses.isEmpty) {
