@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'course_state.dart';
 import 'services/course_api_service.dart';
+import 'services/course_data_source.dart';
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
 import 'screens/course_explorer_page.dart';
@@ -12,6 +13,14 @@ import 'screens/course_explorer_page.dart';
 // NIM: 2415051038
 
 void main() {
+  const String apiBaseUrl =
+      'https://course-api-pearl.vercel.app';
+
+  final CourseDataSource dataSource =
+      CourseApiService(apiBaseUrl);
+
+  final repository = CourseRepository(dataSource);
+
   runApp(
     MultiProvider(
       providers: [
@@ -19,11 +28,7 @@ void main() {
           create: (_) => CourseState(),
         ),
         ChangeNotifierProvider(
-          create: (_) => CourseProvider(
-            CourseRepository(
-               CourseApiService('https://course-api-pearl.vercel.app'),
-                ),
-          )..loadCourses(),
+          create: (_) => CourseProvider(repository)..loadCourses(),
         ),
       ],
       child: const CourseExplorerApp(),

@@ -8,9 +8,9 @@ import '../repositories/course_repository.dart';
 // NIM: 2415051038
 
 class CourseProvider extends ChangeNotifier {
-  final CourseRepository repository;
-
   CourseProvider(this.repository);
+
+  final CourseRepository repository;
 
   List<Course> _courses = [];
   bool _isLoading = false;
