@@ -1,12 +1,16 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../course_data.dart';
 import '../course_state.dart';
+import '../models/course.dart';
+import '../providers/course_provider.dart';
 import '../student_info.dart';
 import '../widgets/blue_header.dart';
-import '../widgets/course_card.dart';
 import '../widgets/summary_card.dart';
+
+// Nama: Gena Anggarani
+// NIM: 2415051038
 
 class HomePage extends StatefulWidget {
   final ValueChanged<Course> onCourseTap;
@@ -34,12 +38,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<CourseProvider>();
+
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
         BlueHeader(
           title: 'Course Explorer',
-          subtitle: 'Halo, $studentName! Yuk, lanjut belajar.',
+          subtitle: 'Halo, $studentName! NIM: 2415051038',
         ),
         const SizedBox(height: 24),
         Row(
@@ -48,7 +54,9 @@ class _HomePageState extends State<HomePage> {
               child: SummaryCard(
                 icon: Icons.menu_book,
                 title: 'Total Mata Kuliah',
-                value: '${courses.length}',
+                value: provider.isLoading
+                    ? '...'
+                    : '${provider.courses.length}',
               ),
             ),
             const SizedBox(width: 12),
@@ -120,12 +128,70 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        ...courses.take(3).map(
-          (course) => CourseCard(
-            course: course,
-            onTap: () => widget.onCourseTap(course),
-          ),
-        ),
+        if (provider.isLoading)
+          const Padding(
+            padding: EdgeInsets.all(24),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (provider.error != null)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Text(
+                    provider.error!,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton(
+                    onPressed: provider.loadCourses,
+                    child: const Text('Coba Lagi'),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else if (provider.courses.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text('Belum ada data mata kuliah.'),
+          )
+        else
+          ...provider.courses.take(3).map((course) {
+            return Card(
+              margin: const EdgeInsets.only(bottom: 10),
+              child: ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: Color(0xFFE3F2FD),
+                  child: Icon(Icons.menu_book, color: Colors.blue),
+                ),
+                title: Text(course.title),
+                subtitle: Text(
+                  '${course.code} • ${course.credits} SKS • '
+                  '${course.status}',
+                ),
+                onTap: () => widget.onCourseTap(course),
+                trailing: Consumer<CourseState>(
+                  builder: (context, state, child) {
+                    final favorite = state.isFavorite(course.code);
+
+                    return IconButton(
+                      onPressed: () {
+                        state.toggleFavorite(course.code);
+                      },
+                      icon: Icon(
+                        favorite
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: favorite ? Colors.red : Colors.grey,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          }),
       ],
     );
   }

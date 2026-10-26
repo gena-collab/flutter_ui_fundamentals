@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../course_data.dart' as ui;
 import '../course_state.dart';
+import '../models/course.dart';
 import '../providers/course_provider.dart';
 import '../widgets/blue_header.dart';
 import '../widgets/error_view.dart';
@@ -14,7 +14,7 @@ import 'edit_course_page.dart';
 // NIM: 2415051038
 
 class CoursesPage extends StatelessWidget {
-  final ValueChanged<ui.Course> onCourseTap;
+  final ValueChanged<Course> onCourseTap;
 
   const CoursesPage({
     super.key,
@@ -23,7 +23,7 @@ class CoursesPage extends StatelessWidget {
 
   Future<void> _confirmDeleteCourse(
     BuildContext context,
-    dynamic course,
+    Course course,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -31,23 +31,18 @@ class CoursesPage extends StatelessWidget {
         return AlertDialog(
           title: const Text('Hapus Course?'),
           content: Text(
-            'Apakah kamu yakin ingin menghapus '
-            '"${course.title}"?',
+            'Apakah kamu yakin ingin menghapus "${course.title}"?',
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext, false);
-              },
+              onPressed: () => Navigator.pop(dialogContext, false),
               child: const Text('Batal'),
             ),
             FilledButton(
-              onPressed: () {
-                Navigator.pop(dialogContext, true);
-              },
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
+              onPressed: () => Navigator.pop(dialogContext, true),
               child: const Text('Hapus'),
             ),
           ],
@@ -55,36 +50,28 @@ class CoursesPage extends StatelessWidget {
       },
     );
 
-    if (!context.mounted || confirmed != true) {
+    if (!context.mounted || confirmed != true || course.id == null) {
       return;
     }
 
-    final favoriteState = context.read<CourseState>();
-
     try {
-      await context
-          .read<CourseProvider>()
-          .deleteCourse(course.id as int);
+      await context.read<CourseProvider>().deleteCourse(course.id!);
 
       if (!context.mounted) return;
 
-      // Hapus favorit setelah DELETE berhasil.
-      if (favoriteState.isFavorite(course.code as String)) {
-        favoriteState.toggleFavorite(course.code as String);
+      final favoriteState = context.read<CourseState>();
+      if (favoriteState.isFavorite(course.code)) {
+        favoriteState.toggleFavorite(course.code);
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Course berhasil dihapus.'),
-        ),
+        const SnackBar(content: Text('Course berhasil dihapus.')),
       );
     } catch (e) {
       if (!context.mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal menghapus course: $e'),
-        ),
+        SnackBar(content: Text('Gagal menghapus course: $e')),
       );
     }
   }
@@ -94,9 +81,7 @@ class CoursesPage extends StatelessWidget {
     return Consumer<CourseProvider>(
       builder: (context, provider, child) {
         if (provider.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (provider.error != null) {
@@ -128,9 +113,9 @@ class CoursesPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             if (provider.courses.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20),
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(
                   child: Text('Belum ada data mata kuliah.'),
                 ),
               )
@@ -144,37 +129,24 @@ class CoursesPage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               ...provider.courses.map((course) {
-                final uiCourse = ui.Course(
-                  name: course.title,
-                  code: course.code,
-                  icon: Icons.menu_book,
-                  description:
-                      '${course.credits} SKS • Status: ${course.status}',
-                );
-
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
                     leading: const CircleAvatar(
                       backgroundColor: Color(0xFFE3F2FD),
-                      child: Icon(
-                        Icons.menu_book,
-                        color: Colors.blue,
-                      ),
+                      child: Icon(Icons.menu_book, color: Colors.blue),
                     ),
                     title: Text(
                       course.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
                       '${course.code} • ${course.credits} SKS • '
                       '${course.status}',
                     ),
-                    onTap: () => onCourseTap(uiCourse),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
+                    onTap: () => onCourseTap(course),
+                    trailing: Wrap(
+                      spacing: 0,
                       children: [
                         IconButton(
                           tooltip: 'Edit course',
@@ -188,9 +160,8 @@ class CoursesPage extends StatelessWidget {
                                   Navigator.push<bool>(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => EditCoursePage(
-                                        course: course,
-                                      ),
+                                      builder: (_) =>
+                                          EditCoursePage(course: course),
                                     ),
                                   );
                                 },
@@ -201,13 +172,9 @@ class CoursesPage extends StatelessWidget {
                             Icons.delete_outline,
                             color: Colors.red,
                           ),
-                          onPressed: course.id == null ||
-                                  provider.isDeleting
+                          onPressed: course.id == null || provider.isDeleting
                               ? null
-                              : () => _confirmDeleteCourse(
-                                    context,
-                                    course,
-                                  ),
+                              : () => _confirmDeleteCourse(context, course),
                         ),
                         Consumer<CourseState>(
                           builder: (context, state, child) {
@@ -225,9 +192,7 @@ class CoursesPage extends StatelessWidget {
                                 favorite
                                     ? Icons.favorite
                                     : Icons.favorite_border,
-                                color: favorite
-                                    ? Colors.red
-                                    : Colors.grey,
+                                color: favorite ? Colors.red : Colors.grey,
                               ),
                             );
                           },
