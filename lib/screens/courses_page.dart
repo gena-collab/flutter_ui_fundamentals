@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,6 +6,7 @@ import '../course_state.dart';
 import '../providers/course_provider.dart';
 import '../widgets/blue_header.dart';
 import '../widgets/error_view.dart';
+import 'add_course_page.dart';
 
 // Nama: Gena Anggarani
 // NIM: 2415051038
@@ -23,25 +23,52 @@ class CoursesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<CourseProvider>(
       builder: (context, provider, child) {
+        // Loading state
         if (provider.isLoading) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
 
+        // Error state
         if (provider.error != null) {
           return ErrorView(
-             message: provider.error!,
-             onRetry: provider.loadCourses,
-           );
-        }
-
-        if (provider.courses.isEmpty) {
-          return const Center(
-            child: Text('Belum ada data mata kuliah.'),
+            message: provider.error!,
+            onRetry: provider.loadCourses,
           );
         }
 
+        // Empty state
+        if (provider.courses.isEmpty) {
+          return ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              const BlueHeader(
+                title: 'Daftar Mata Kuliah',
+                subtitle: 'Pilih mata kuliah dan simpan favoritmu.',
+              ),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () {
+                  Navigator.push<bool>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AddCoursePage(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Tambah Course'),
+              ),
+              const SizedBox(height: 16),
+              const Center(
+                child: Text('Belum ada data mata kuliah.'),
+              ),
+            ],
+          );
+        }
+
+        // Success state
         return ListView(
           padding: const EdgeInsets.all(20),
           children: [
@@ -49,6 +76,22 @@ class CoursesPage extends StatelessWidget {
               title: 'Daftar Mata Kuliah',
               subtitle: 'Pilih mata kuliah dan simpan favoritmu.',
             ),
+            const SizedBox(height: 24),
+
+            // Tombol tambah course
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AddCoursePage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Tambah Course'),
+            ),
+
             const SizedBox(height: 24),
             Text(
               'Total ${provider.courses.length} mata kuliah',
@@ -58,6 +101,7 @@ class CoursesPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
+
             ...provider.courses.map((course) {
               final uiCourse = ui.Course(
                 name: course.title,
