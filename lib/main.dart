@@ -5,8 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'course_state.dart';
 import 'supabase_config.dart';
-import 'services/course_api_service.dart';
 import 'services/course_data_source.dart';
+import 'services/course_supabase_service.dart';
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
 import 'screens/course_explorer_page.dart';
@@ -22,11 +22,8 @@ Future<void> main() async {
     publishableKey: SupabaseConfig.supabaseAnonKey,
   );
 
-  const String apiBaseUrl =
-      'https://course-api-pearl.vercel.app';
-
   final CourseDataSource dataSource =
-      CourseApiService(apiBaseUrl);
+      CourseSupabaseService();
 
   final repository = CourseRepository(dataSource);
 
