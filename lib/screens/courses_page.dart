@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +20,74 @@ class CoursesPage extends StatelessWidget {
     super.key,
     required this.onCourseTap,
   });
+
+  Future<void> _confirmDeleteCourse(
+    BuildContext context,
+    dynamic course,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Hapus Course?'),
+          content: Text(
+            'Apakah kamu yakin ingin menghapus '
+            '"${course.title}"?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Batal'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!context.mounted || confirmed != true) {
+      return;
+    }
+
+    final favoriteState = context.read<CourseState>();
+
+    try {
+      await context
+          .read<CourseProvider>()
+          .deleteCourse(course.id as int);
+
+      if (!context.mounted) return;
+
+      // Hapus favorit setelah DELETE berhasil.
+      if (favoriteState.isFavorite(course.code as String)) {
+        favoriteState.toggleFavorite(course.code as String);
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Course berhasil dihapus.'),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menghapus course: $e'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +169,8 @@ class CoursesPage extends StatelessWidget {
                       ),
                     ),
                     subtitle: Text(
-                      '${course.code} • ${course.credits} SKS • ${course.status}',
+                      '${course.code} • ${course.credits} SKS • '
+                      '${course.status}',
                     ),
                     onTap: () => onCourseTap(uiCourse),
                     trailing: Row(
@@ -124,6 +194,20 @@ class CoursesPage extends StatelessWidget {
                                     ),
                                   );
                                 },
+                        ),
+                        IconButton(
+                          tooltip: 'Hapus course',
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                          ),
+                          onPressed: course.id == null ||
+                                  provider.isDeleting
+                              ? null
+                              : () => _confirmDeleteCourse(
+                                    context,
+                                    course,
+                                  ),
                         ),
                         Consumer<CourseState>(
                           builder: (context, state, child) {

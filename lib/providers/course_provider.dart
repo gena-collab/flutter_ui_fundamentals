@@ -1,3 +1,4 @@
+
 import 'package:flutter/foundation.dart';
 
 import '../models/course.dart';
@@ -15,12 +16,14 @@ class CourseProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isSaving = false;
   bool _isUpdating = false;
+  bool _isDeleting = false;
   String? _error;
 
   List<Course> get courses => _courses;
   bool get isLoading => _isLoading;
   bool get isSaving => _isSaving;
   bool get isUpdating => _isUpdating;
+  bool get isDeleting => _isDeleting;
   String? get error => _error;
 
   Future<void> loadCourses() async {
@@ -50,7 +53,15 @@ class CourseProvider extends ChangeNotifier {
     try {
       final createdCourse =
           await repository.createCourse(course);
+
       await loadCourses();
+
+      if (_error != null) {
+        throw Exception(
+          'Course tersimpan, tetapi daftar gagal dimuat ulang.',
+        );
+      }
+
       return createdCourse;
     } finally {
       _isSaving = false;
@@ -69,8 +80,37 @@ class CourseProvider extends ChangeNotifier {
     try {
       await repository.updateCourse(id, course);
       await loadCourses();
+
+      if (_error != null) {
+        throw Exception(
+          'Course diperbarui, tetapi daftar gagal dimuat ulang.',
+        );
+      }
     } finally {
       _isUpdating = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteCourse(int id) async {
+    if (_isDeleting) {
+      throw Exception('Course sedang dihapus.');
+    }
+
+    _isDeleting = true;
+    notifyListeners();
+
+    try {
+      await repository.deleteCourse(id);
+      await loadCourses();
+
+      if (_error != null) {
+        throw Exception(
+          'Course terhapus, tetapi daftar gagal dimuat ulang.',
+        );
+      }
+    } finally {
+      _isDeleting = false;
       notifyListeners();
     }
   }

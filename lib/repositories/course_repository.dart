@@ -1,3 +1,4 @@
+
 import '../models/course.dart';
 import '../services/course_api_service.dart';
 
@@ -19,5 +20,9 @@ class CourseRepository {
 
   Future<void> updateCourse(int id, Course course) {
     return service.updateCourse(id, course);
+  }
+
+  Future<void> deleteCourse(int id) {
+    return service.deleteCourse(id);
   }
 }

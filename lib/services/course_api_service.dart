@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -27,8 +28,8 @@ class CourseApiService {
 
     return data
         .map(
-          (e) => Course.fromJson(
-            e as Map<String, dynamic>,
+          (item) => Course.fromJson(
+            item as Map<String, dynamic>,
           ),
         )
         .toList();
@@ -64,6 +65,19 @@ class CourseApiService {
         response.statusCode >= 300) {
       throw Exception(
         'Gagal memperbarui course: HTTP ${response.statusCode}',
+      );
+    }
+  }
+
+  Future<void> deleteCourse(int id) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/courses/$id'),
+    );
+
+    if (response.statusCode < 200 ||
+        response.statusCode >= 300) {
+      throw Exception(
+        'Gagal menghapus course: HTTP ${response.statusCode}',
       );
     }
   }
