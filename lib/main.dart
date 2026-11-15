@@ -9,7 +9,7 @@ import 'services/course_data_source.dart';
 import 'services/course_supabase_service.dart';
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
-import 'screens/course_explorer_page.dart';
+import 'screens/auth_gate.dart';
 
 // Nama: Gena Anggarani
 // NIM: 2415051038
@@ -22,9 +22,7 @@ Future<void> main() async {
     publishableKey: SupabaseConfig.supabaseAnonKey,
   );
 
-  final CourseDataSource dataSource =
-      CourseSupabaseService();
-
+  final CourseDataSource dataSource = CourseSupabaseService();
   final repository = CourseRepository(dataSource);
 
   runApp(
@@ -57,7 +55,7 @@ class CourseExplorerApp extends StatelessWidget {
         ),
         scaffoldBackgroundColor: const Color(0xFFF5F8FC),
       ),
-      home: const CourseExplorerPage(),
+      home: const AuthGate(),
     );
   }
 }
