@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../course_state.dart';
 import '../models/course.dart';
 import '../providers/course_provider.dart';
+import '../services/auth_service.dart';
 import '../student_info.dart';
 import '../widgets/blue_header.dart';
 import '../widgets/summary_card.dart';
@@ -29,11 +30,31 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ValueNotifier<int> counter = ValueNotifier<int>(0);
   int setStateCounter = 0;
+  bool isLoggingOut = false;
 
   @override
   void dispose() {
     counter.dispose();
     super.dispose();
+  }
+
+  Future<void> _logout() async {
+    setState(() => isLoggingOut = true);
+
+    try {
+      await AuthService().logout();
+
+      // AuthGate akan mendeteksi session yang sudah dihapus
+      // dan otomatis menampilkan LoginPage.
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout gagal: $e')),
+      );
+
+      setState(() => isLoggingOut = false);
+    }
   }
 
   @override
@@ -43,6 +64,20 @@ class _HomePageState extends State<HomePage> {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: isLoggingOut ? null : _logout,
+            icon: isLoggingOut
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.logout),
+            label: Text(isLoggingOut ? 'Keluar...' : 'Logout'),
+          ),
+        ),
         BlueHeader(
           title: 'Course Explorer',
           subtitle: 'Halo, $studentName! NIM: 2415051038',
