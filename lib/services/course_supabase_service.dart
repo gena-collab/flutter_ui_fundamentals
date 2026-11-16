@@ -23,32 +23,49 @@ class CourseSupabaseService implements CourseDataSource {
   }
 
   @override
-  @override
   Future<Course> createCourse(Course course) async {
+    // owner_id otomatis diisi menggunakan auth.uid()
+    // melalui default value pada database.
     final row = await supabase
-      .from('courses')
-      .insert(course.toJson())
-      .select()
-      .single();
+        .from('courses')
+        .insert(course.toJson())
+        .select()
+        .single();
 
-  return Course.fromJson(
-    Map<String, dynamic>.from(row),
-  );
-}
+    return Course.fromJson(
+      Map<String, dynamic>.from(row),
+    );
+  }
 
   @override
   Future<void> updateCourse(int id, Course course) async {
-    await supabase
-      .from('courses')
-      .update(course.toJson())
-      .eq('id', id);
-}
+    final rows = await supabase
+        .from('courses')
+        .update(course.toJson())
+        .eq('id', id)
+        .select();
 
- @override
+    if (rows.isEmpty) {
+      throw Exception(
+        'Mata kuliah tidak dapat diperbarui. '
+        'Data bukan milikmu atau akses ditolak oleh RLS.',
+      );
+    }
+  }
+
+  @override
   Future<void> deleteCourse(int id) async {
-    await supabase
-      .from('courses')
-      .delete()
-      .eq('id', id);
-}
+    final rows = await supabase
+        .from('courses')
+        .delete()
+        .eq('id', id)
+        .select();
+
+    if (rows.isEmpty) {
+      throw Exception(
+        'Mata kuliah tidak dapat dihapus. '
+        'Data bukan milikmu atau akses ditolak oleh RLS.',
+      );
+    }
+  }
 }
