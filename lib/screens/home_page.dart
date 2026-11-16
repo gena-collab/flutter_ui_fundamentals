@@ -6,9 +6,11 @@ import '../course_state.dart';
 import '../models/course.dart';
 import '../providers/course_provider.dart';
 import '../services/auth_service.dart';
+import '../services/profile_service.dart';
 import '../student_info.dart';
 import '../widgets/blue_header.dart';
 import '../widgets/summary_card.dart';
+import '../widgets/role_guard.dart';
 
 // Nama: Gena Anggarani
 // NIM: 2415051038
@@ -32,6 +34,14 @@ class _HomePageState extends State<HomePage> {
   int setStateCounter = 0;
   bool isLoggingOut = false;
 
+  late Future<UserProfile?> _profileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _profileFuture = ProfileService().getMyProfile();
+  }
+
   @override
   void dispose() {
     counter.dispose();
@@ -43,9 +53,6 @@ class _HomePageState extends State<HomePage> {
 
     try {
       await AuthService().logout();
-
-      // AuthGate akan mendeteksi session yang sudah dihapus
-      // dan otomatis menampilkan LoginPage.
     } catch (e) {
       if (!mounted) return;
 
@@ -55,6 +62,90 @@ class _HomePageState extends State<HomePage> {
 
       setState(() => isLoggingOut = false);
     }
+  }
+
+  Widget _buildRoleSection() {
+    return FutureBuilder<UserProfile?>(
+      future: _profileFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        if (snapshot.hasError || snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+
+        final profile = snapshot.data!;
+        final role = profile.role;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Fitur Berdasarkan Role',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Fitur yang hanya dapat dilihat Owner dan Admin.
+            RoleGuard(
+              role: role,
+              allowed: const ['owner', 'admin'],
+              child: Card(
+                color: const Color(0xFFE3F2FD),
+                elevation: 0,
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.manage_accounts,
+                    color: Colors.blue,
+                    size: 32,
+                  ),
+                  title: const Text(
+                    'Akses Pengelola Kursus',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: const Text(
+                    'Fitur pengelolaan mata kuliah untuk Owner dan Admin.',
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () => widget.onNavigate(1),
+                ),
+              ),
+            ),
+
+            // Fitur khusus Admin.
+            RoleGuard(
+              role: role,
+              allowed: const ['admin'],
+              child: Card(
+                color: const Color(0xFFFFF3E0),
+                elevation: 0,
+                child: const ListTile(
+                  leading: Icon(
+                    Icons.admin_panel_settings,
+                    color: Colors.deepOrange,
+                    size: 32,
+                  ),
+                  title: Text(
+                    'Panel Administrasi',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    'Akses khusus untuk administrator aplikasi.',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -82,6 +173,11 @@ class _HomePageState extends State<HomePage> {
           title: 'Course Explorer',
           subtitle: 'Halo, $studentName! NIM: 2415051038',
         ),
+        const SizedBox(height: 24),
+
+        // Tampilan fitur berdasarkan role pengguna.
+        _buildRoleSection(),
+
         const SizedBox(height: 24),
         Row(
           children: [
