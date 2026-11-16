@@ -7,32 +7,35 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  // Mengambil pengguna yang sedang login
   User? get currentUser => _supabase.auth.currentUser;
 
-  // Mengambil status sesi login
   Session? get currentSession => _supabase.auth.currentSession;
 
-  // Mendengarkan perubahan status autentikasi
   Stream<AuthState> get authStateChanges =>
       _supabase.auth.onAuthStateChange;
 
-  // Registrasi pengguna baru
-  Future<void> register({
-    required String name,
+  bool get isLoggedIn => currentSession != null;
+
+  Future<AuthResponse> register({
     required String email,
     required String password,
+    String name = '',
+    String role = 'seeker',
   }) async {
-    await _supabase.auth.signUp(
+    // Role yang boleh dipilih melalui aplikasi hanya seeker dan owner.
+    final selectedRole =
+        role == 'owner' ? 'owner' : 'seeker';
+
+    return await _supabase.auth.signUp(
       email: email,
       password: password,
       data: {
         'name': name,
+        'role': selectedRole,
       },
     );
   }
 
-  // Login pengguna
   Future<void> login({
     required String email,
     required String password,
@@ -43,12 +46,10 @@ class AuthService {
     );
   }
 
-  // Logout pengguna
   Future<void> logout() async {
     await _supabase.auth.signOut();
   }
 
-  // Mengambil profil pengguna berdasarkan ID
   Future<Map<String, dynamic>?> getProfile() async {
     final user = currentUser;
 

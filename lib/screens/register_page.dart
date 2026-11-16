@@ -23,6 +23,8 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isLoading = false;
   bool _obscurePassword = true;
 
+  String _selectedRole = 'seeker';
+
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -33,6 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text,
+        role: _selectedRole,
       );
 
       if (!mounted) return;
@@ -127,6 +130,35 @@ class _RegisterPageState extends State<RegisterPage> {
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: 16),
+
+                DropdownButtonFormField<String>(
+                  initialValue: _selectedRole,
+                  decoration: const InputDecoration(
+                    labelText: 'Daftar sebagai',
+                    prefixIcon: Icon(Icons.people),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'seeker',
+                      child: Text('Pencari Kursus (Seeker)'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'owner',
+                      child: Text('Penyedia Kursus (Owner)'),
+                    ),
+                  ],
+                  onChanged: _isLoading
+                      ? null
+                      : (value) {
+                          if (value != null) {
+                            setState(() {
+                              _selectedRole = value;
+                            });
+                          }
+                        },
                 ),
                 const SizedBox(height: 16),
 
