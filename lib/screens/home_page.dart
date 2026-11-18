@@ -6,11 +6,12 @@ import '../course_state.dart';
 import '../models/course.dart';
 import '../providers/course_provider.dart';
 import '../services/auth_service.dart';
+import '../services/notification_service.dart';
 import '../services/profile_service.dart';
 import '../student_info.dart';
 import '../widgets/blue_header.dart';
-import '../widgets/summary_card.dart';
 import '../widgets/role_guard.dart';
+import '../widgets/summary_card.dart';
 
 // Nama: Gena Anggarani
 // NIM: 2415051038
@@ -39,7 +40,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
     _profileFuture = ProfileService().getMyProfile();
+
+    NotificationService.instance.init();
   }
 
   @override
@@ -84,16 +88,15 @@ class _HomePageState extends State<HomePage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Fitur Berdasarkan Role',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 14),
 
-            // Fitur yang hanya dapat dilihat Owner dan Admin.
             RoleGuard(
               role: role,
               allowed: const ['owner', 'admin'],
@@ -119,7 +122,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            // Fitur khusus Admin.
             RoleGuard(
               role: role,
               allowed: const ['admin'],
@@ -169,16 +171,17 @@ class _HomePageState extends State<HomePage> {
             label: Text(isLoggingOut ? 'Keluar...' : 'Logout'),
           ),
         ),
+
         BlueHeader(
           title: 'Course Explorer',
           subtitle: 'Halo, $studentName! NIM: 2415051038',
         ),
         const SizedBox(height: 24),
 
-        // Tampilan fitur berdasarkan role pengguna.
         _buildRoleSection(),
 
         const SizedBox(height: 24),
+
         Row(
           children: [
             Expanded(
@@ -191,15 +194,23 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(child: FavoriteCountCard()),
+            const Expanded(
+              child: FavoriteCountCard(),
+            ),
           ],
         ),
+
         const SizedBox(height: 28),
+
         const Text(
           'Eksperimen ValueNotifier',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 14),
+
         Card(
           elevation: 0,
           color: Colors.white,
@@ -209,6 +220,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 const Text('Nilai ValueNotifier'),
                 const SizedBox(height: 8),
+
                 ValueListenableBuilder<int>(
                   valueListenable: counter,
                   builder: (context, value, child) => Text(
@@ -220,14 +232,18 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
+
                 FilledButton.icon(
                   onPressed: () => counter.value++,
                   icon: const Icon(Icons.add),
                   label: const Text('Tambah ValueNotifier'),
                 ),
+
                 const Divider(height: 30),
+
                 const Text('Nilai setState() sebagai pembanding'),
                 const SizedBox(height: 8),
+
                 Text(
                   '$setStateCounter',
                   style: const TextStyle(
@@ -236,8 +252,11 @@ class _HomePageState extends State<HomePage> {
                     color: Colors.deepPurple,
                   ),
                 ),
+
                 OutlinedButton.icon(
-                  onPressed: () => setState(() => setStateCounter++),
+                  onPressed: () {
+                    setState(() => setStateCounter++);
+                  },
                   icon: const Icon(Icons.refresh),
                   label: const Text('Tambah dengan setState()'),
                 ),
@@ -245,13 +264,18 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
+
         const SizedBox(height: 28),
+
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
               'Mata Kuliah',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             TextButton(
               onPressed: () => widget.onNavigate(1),
@@ -259,10 +283,13 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+
         if (provider.isLoading)
           const Padding(
             padding: EdgeInsets.all(24),
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
           )
         else if (provider.error != null)
           Card(
@@ -295,7 +322,10 @@ class _HomePageState extends State<HomePage> {
               child: ListTile(
                 leading: const CircleAvatar(
                   backgroundColor: Color(0xFFE3F2FD),
-                  child: Icon(Icons.menu_book, color: Colors.blue),
+                  child: Icon(
+                    Icons.menu_book,
+                    color: Colors.blue,
+                  ),
                 ),
                 title: Text(course.title),
                 subtitle: Text(

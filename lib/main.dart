@@ -10,6 +10,7 @@ import 'course_state.dart';
 import 'supabase_config.dart';
 import 'services/course_data_source.dart';
 import 'services/course_supabase_service.dart';
+import 'services/notification_service.dart';
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
 import 'screens/auth_gate.dart';
@@ -25,22 +26,10 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Meminta izin notifikasi
-  await FirebaseMessaging.instance.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
+  // Mendaftarkan background notification handler
+  FirebaseMessaging.onBackgroundMessage(
+    firebaseMessagingBackgroundHandler,
   );
-
-  // Mengambil FCM Token perangkat
-final fcmToken = await FirebaseMessaging.instance.getToken();
-debugPrint('FCM Token: $fcmToken');
-
-// Mendengarkan notifikasi saat aplikasi terbuka
-FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-  debugPrint('Notifikasi diterima: ${message.notification?.title}');
-  debugPrint('Isi pesan: ${message.notification?.body}');
-});
 
   // Inisialisasi Supabase
   await Supabase.initialize(
